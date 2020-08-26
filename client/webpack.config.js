@@ -2,44 +2,47 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
 module.exports = {
-  output: {
-    publicPath: "http://localhost:8080/",
-  },
+    output: {
+        publicPath: "http://localhost:8080/",
+    },
 
-  resolve: {
-    extensions: [".jsx", ".js", ".json"],
-  },
+    resolve: {
+        extensions: [".jsx", ".js", ".json"],
+    },
 
-  devServer: {
-    port: 8080,
-  },
+    devServer: {
+        port: 8080,
+    },
 
-  module: {
-    rules: [
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-        },
-      },
+    module: {
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
+            },
+            {
+                test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader",
+                },
+            },
+        ],
+    },
+
+    plugins: [
+        new ModuleFederationPlugin({
+            name: "chat",
+            filename: "remoteEntry.js",
+			remotes: {},
+			//expose chat component, and this is all the chat stuff
+            exposes: {
+                "./Chat": "./src/Chat",
+            },
+            shared: require("./package.json").dependencies,
+        }),
+        new HtmlWebPackPlugin({
+            template: "./src/index.html",
+        }),
     ],
-  },
-
-  plugins: [
-    new ModuleFederationPlugin({
-      name: "starter",
-      filename: "remoteEntry.js",
-      remotes: {},
-      exposes: {},
-      shared: require("./package.json").dependencies,
-    }),
-    new HtmlWebPackPlugin({
-      template: "./src/index.html",
-    }),
-  ],
 };

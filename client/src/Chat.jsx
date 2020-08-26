@@ -12,17 +12,18 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import { Container, Row, Col, FormInput, Button, Form } from "shards-react";
 
 const link = new WebSocketLink({
-	// on 4000 since that's where erver is
+    // on 4000 since that's where erver is
     uri: `ws://localhost:4000/`,
     options: { reconnect: true },
 });
 
 const client = new ApolloClient({
-	link, 
+    link,
     uri: "http://localhost:4000/",
     cache: new InMemoryCache(),
 });
 
+// this used to use query, but we change dto get subscritpion use
 const GET_MESSAGES = gql`
     subscription {
         messages {
@@ -42,14 +43,12 @@ const POST_MESSAGE = gql`
 
 const Messages = ({ user }) => {
     // this gives it time to reload; 500 mill; fix with substriction b/c it'd  do contantly
-    const { data } = useQuery(GET_MESSAGES, {
-        pollInterval: 500,
-    });
+    const { data } = useSubscription(GET_MESSAGES);
     if (!data) {
         return null;
     }
     return (
-        <>
+        <React.Fragment>
             {data.messages.map(({ id, user: messageUser, content }) => (
                 <div
                     style={{
@@ -89,7 +88,7 @@ const Messages = ({ user }) => {
                     </div>
                 </div>
             ))}
-        </>
+        </React.Fragment>
     );
 };
 
@@ -137,7 +136,7 @@ const Chat = () => {
                     />
                 </Col>
                 <Col xs={2} style={{ padding: 0 }}>
-                    <Button onClick={() => onSend()}>Send</Button>
+                    <Button onClick={() => onSend()} style={{width: "100%", backgroundColor: "magenta"}}>Send</Button>
                 </Col>
             </Row>
         </Container>
